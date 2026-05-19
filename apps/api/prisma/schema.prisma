@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+/// The main session table storing the single absolute latest snapshot of a user's form state.
+
+model Session {
+  id           String   @id @default(uuid())
+  
+  // Single column holding the latest aggregated JSON snapshot of answers
+  savedAnswers Json     @default("{}")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Historical relations
+  history      SessionHistory[]
+
+  // High-performance index for rapid session lookups during refreshes
+  @@index([id])
+}
+
+/// An append-only historical audit ledger tracking individual mutation changes.
+
+model SessionHistory {
+  id          String   @id @default(uuid())
+  sessionId   String
+  
+  // The state of answers at this specific point in time
+  savedAnswers Json
+  
+  // Only createdAt is needed as this table is strictly insert-only (no updates)
+  createdAt   DateTime @default(now())
+
+  // Database level relationship link
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Index on foreign key to quickly compile user history sequences
+  @@index([sessionId])
+}
