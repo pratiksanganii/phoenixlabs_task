@@ -29,7 +29,7 @@ model Session {
 /// An append-only historical audit ledger tracking individual mutation changes.
 
 model SessionHistory {
-  id          String   @id @default(uuid())
+  id          Int   @id @default(autoincrement())
   sessionId   String
   
   // The state of answers at this specific point in time
