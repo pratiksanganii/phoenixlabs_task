@@ -19,14 +19,16 @@ Update this file whenever the current phase, active feature, or implementation s
 - **Local Database Environment:** Provisioned a local PostgreSQL 15 container instance running via Docker Compose.
 - **Relational Data Modeling:** Created the database blueprint using a streamlined two-table architecture designed for high concurrency, storing consolidated intermediate states alongside an append-only transaction trail (`Session` + `SessionHistory`).
 - **Prisma Migrations:** Successfully executed the baseline database initialization tracking using explicit version 6 tags (`npx prisma@6 migrate dev --name init_session_tracking`), ensuring compatibility with the team's production codebase targets.
+- **Declarative Form Engine:** Modeled the 15-screen questionnaire using an encapsulated JSON schema engine configuration (`FORM_ENGINE_SCHEMA`). Shuffled the navigation routing into isolated, self-contained functional properties (`resolveProgress`) on individual screen objects to maximize scalability and maintain the Open-Closed SOLID design pattern.
+- **Progressive Clinical Evaluator:** Crafted a zero-dependency pure function (`evaluateEligibility`) that mimics chronological clinical traversal. Optimized the data integrity layer to cleanly catch missing data assertions via explicit `try...catch` guards while supporting smooth early-exit workflows (e.g., underage or low-BMI rejections) without throwing false-positive errors on downstream missing variables.
+- **Scratchpad Test Harness:** Set up a rapid execution runtime shortcut (`npm run scratchpad`) utilizing `tsx` to evaluate complete and incomplete user state matrices locally inside the package workspace.
 
 ## In Progress
 
-- Mapping out the structural JSON schema and building out the cascading evaluation rules engine.
+- Transitioning local scratchpad evaluation sequences into an isolated, automated Vitest 4 testing suite.
 
 ## Next Up
 
-- **Pure Functional Evaluator:** Implement the standalone `evaluateEligibility` algorithm inside `packages/form-engine/src/evaluator.ts`.
 - **Unit Testing Coverage:** Add the Vitest 4 testing suite to force full 100% branch validation paths across every medical scenario defined in the specifications.
 - **NestJS API Layer:** Build out the backend session controllers and endpoints (`/start`, `/answer`, `/:id`) in NestJS 11.
 
@@ -38,6 +40,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - **Append-Only Session Logs:** Chose to extract mutable progress steps out into an isolated, sequential `SessionHistory` data log. This keeps the primary `Session` row small and performant under load, while generating a clean, unblemished clinical audit trail of patient choices.
 - **Workspace Dependency Sharing:** Kept raw database client generation outputs centralized within the default `.prisma` framework directory, eliminating fragile relative path mapping across the repository layout while enforcing clean compile-time borders.
+- **Stateful Waterfall Resolver Routing:** Upgraded the global router logic to traverse responses progressively from Screen 1 on every entry point request. This creates a defensive state hydration loop that neutralizes browser-refresh skipping bugs, malicious payload injection attempts, or client-side context manipulation.
 
 ## Session Notes
 
