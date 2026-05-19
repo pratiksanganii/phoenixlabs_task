@@ -172,32 +172,17 @@ export const FORM_ENGINE_SCHEMA: Record<ScreenId, FormEngineScreenConfig> = {
  * Cascades through screens sequentially starting from AGE (Screen 1).
  */
 export function determineCurrentActiveScreen(answers: Partial<FormResponse>): ScreenId {
-  const traversalOrder = [
-    ScreenId.AGE,
-    ScreenId.WEIGHT,
-    ScreenId.HEIGHT,
-    ScreenId.BMI,
-    ScreenId.PREGNANCY_STATUS,
-    ScreenId.COMORBID_CONDITIONS,
-    ScreenId.DIABETES_HISTORY,
-    ScreenId.MOST_RECENT_HbA1c,
-    ScreenId.BLOOD_PRESSURE_CATEGORIES,
-    ScreenId.CURRENT_MEDICATIONS,
-    ScreenId.SMOKING_STATUS,
-    ScreenId.ALCOHOL_USE_FREQUENCY,
-    ScreenId.PHYSICAL_ACTIVITY_LEVEL,
-    ScreenId.DIETARY_HABITS,
-    ScreenId.FINAL_SCREEN
-  ];
-
-  for (const screenId of traversalOrder) {
+  const recursivelyCheckScreen = (
+    screenId: ScreenId,
+    answers: Partial<FormResponse>,
+  ) => {
     const outputTarget = FORM_ENGINE_SCHEMA[screenId].resolveProgress(answers);
-    
     // If the screen indicates it's incomplete or forces a redirect, stop here immediately!
     if (outputTarget === screenId || screenId === ScreenId.FINAL_SCREEN) {
       return outputTarget;
     }
-  }
+    return recursivelyCheckScreen(outputTarget, answers);
+  };
 
-  return ScreenId.FINAL_SCREEN;
+  return recursivelyCheckScreen(ScreenId.AGE, answers);
 }

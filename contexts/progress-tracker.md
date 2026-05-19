@@ -45,3 +45,4 @@ Update this file whenever the current phase, active feature, or implementation s
 ## Session Notes
 
 - **Prisma Version Boundary Catch:** Caught a syntax exception where the ecosystem was defaulting to the absolute latest version 7 parameters (which deprecates direct `url` string attributes inside schema blueprints). Reverted the active workspace packages and explicitly pinned the tooling to standard Prisma 6 configurations to exactly match the company's real codebase guidelines.
+* **Graph-Traversal Navigation Fix:** Identified an issue where a linear iteration loop overrode early short-circuit routes (like underage or low BMI rejections) by evaluating unreached downstream screens. Refactored the core execution router (`determineCurrentActiveScreen`) into a clean, recursive state-machine pattern that dynamically follows branching targets and halts exactly at base validation boundaries, passing all Vitest test blocks.
