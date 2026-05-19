@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@source "./";
+
+@theme {
+  /* Ensure highly legible, accessible color contrast ratios for healthcare targets */
+  --color-brand-primary: #0284c7;   /* Sky-600 */
+  --color-brand-dark: #0f172a;      /* Slate-900 */
+  --color-brand-error: #dc2626;     /* Red-600 */
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* Ensure focus states are distinct and unmistakable for keyboard navigation */
+@layer base {
+  *:focus-visible {
+    @apply outline-3 outline-offset-2 outline-brand-primary;
+  }
+}

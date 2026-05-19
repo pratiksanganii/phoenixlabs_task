@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@import "@phoenixlabs/ui/styles.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
