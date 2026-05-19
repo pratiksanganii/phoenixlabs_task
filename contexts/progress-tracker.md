@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Build and lock down the pure Eligibility Evaluator logic with 100% Vitest branch coverage inside the shared form-engine workspace.
+- Build the Next.js patient-facing client to consume the session API and render the 15-screen questionnaire flow.
 
 ## Completed
 
@@ -22,15 +22,17 @@ Update this file whenever the current phase, active feature, or implementation s
 - **Declarative Form Engine:** Modeled the 15-screen questionnaire using an encapsulated JSON schema engine configuration (`FORM_ENGINE_SCHEMA`). Shuffled the navigation routing into isolated, self-contained functional properties (`resolveProgress`) on individual screen objects to maximize scalability and maintain the Open-Closed SOLID design pattern.
 - **Progressive Clinical Evaluator:** Crafted a zero-dependency pure function (`evaluateEligibility`) that mimics chronological clinical traversal. Optimized the data integrity layer to cleanly catch missing data assertions via explicit `try...catch` guards while supporting smooth early-exit workflows (e.g., underage or low-BMI rejections) without throwing false-positive errors on downstream missing variables.
 - **Scratchpad Test Harness:** Set up a rapid execution runtime shortcut (`npm run scratchpad`) utilizing `tsx` to evaluate complete and incomplete user state matrices locally inside the package workspace.
+- **NestJS Session API:** Implemented `POST /api/session/start`, `POST /api/session/answer`, and `GET /api/session/:id` with Prisma persistence, deduplicated answer short-circuiting, atomic `$transaction` writes to `Session` + `SessionHistory`, and routing/evaluation delegated to `@phoenix/form-engine`.
+- **API Integration Tests:** Added Vitest-based `session.controller.spec.ts` with mocked Prisma (no live PostgreSQL required).
 
 ## In Progress
 
-- Transitioning local scratchpad evaluation sequences into an isolated, automated Vitest 4 testing suite.
+- None.
 
 ## Next Up
 
-- **Unit Testing Coverage:** Add the Vitest 4 testing suite to force full 100% branch validation paths across every medical scenario defined in the specifications.
-- **NestJS API Layer:** Build out the backend session controllers and endpoints (`/start`, `/answer`, `/:id`) in NestJS 11.
+- **Unit Testing Coverage:** Add the Vitest 4 testing suite to force full 100% branch validation paths across every medical scenario defined in the specifications (form-engine).
+- **Next.js Client Integration:** Wire `apps/web` to the session API for start, answer, and F5 hydration flows.
 
 ## Open Questions
 
