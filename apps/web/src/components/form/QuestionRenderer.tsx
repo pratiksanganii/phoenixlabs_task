@@ -13,6 +13,10 @@ import {
   RadioOption,
 } from "@phoenixlabs/ui";
 import { useFormWizard } from "@/context/FormWizardContext";
+import {
+  BP_CONFLICT_MESSAGE,
+  hasBloodPressureConflict,
+} from "@/lib/blood-pressure-validation";
 
 const NUMERIC_SUFFIX: Partial<Record<ScreenId, string>> = {
   [ScreenId.AGE]: "years",
@@ -22,8 +26,14 @@ const NUMERIC_SUFFIX: Partial<Record<ScreenId, string>> = {
 };
 
 export function QuestionRenderer() {
-  const { activeScreenId, draftAnswer, setDraftAnswer, validationError } =
-    useFormWizard();
+  const {
+    activeScreenId,
+    draftAnswer,
+    setDraftAnswer,
+    validationError,
+    clearValidationError,
+    reportValidationError,
+  } = useFormWizard();
 
   if (!activeScreenId || activeScreenId === ScreenId.FINAL_SCREEN) return null;
 
@@ -64,7 +74,11 @@ export function QuestionRenderer() {
           ))}
         </RadioGroup>
         {validationError ? (
-          <p role="alert" className="text-sm text-brand-error">
+          <p
+            role="alert"
+            data-testid="validation-error"
+            className="text-sm text-brand-error"
+          >
             {validationError}
           </p>
         ) : null}
@@ -79,16 +93,27 @@ export function QuestionRenderer() {
         <p className="text-lg font-medium text-slate-100">{prompt}</p>
         <CheckboxGroup
           value={selected}
-          onChange={(vals) =>
-            setDraftAnswer(vals as FormResponse[typeof activeScreenId])
-          }
+          onChange={(vals) => {
+            setDraftAnswer(vals as FormResponse[typeof activeScreenId]);
+            if (activeScreenId === ScreenId.BLOOD_PRESSURE_CATEGORIES) {
+              if (hasBloodPressureConflict(vals)) {
+                reportValidationError(BP_CONFLICT_MESSAGE);
+              } else {
+                clearValidationError();
+              }
+            }
+          }}
         >
           {config.options.map((opt) => (
             <CheckboxOption key={opt} value={opt} label={opt} />
           ))}
         </CheckboxGroup>
         {validationError ? (
-          <p role="alert" className="text-sm text-brand-error">
+          <p
+            role="alert"
+            data-testid="validation-error"
+            className="text-sm text-brand-error"
+          >
             {validationError}
           </p>
         ) : null}

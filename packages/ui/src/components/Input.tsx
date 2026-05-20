@@ -58,7 +58,12 @@ export function Input({
         ) : null}
       </div>
       {error ? (
-        <p id={`${id}-error`} role="alert" className="text-sm text-brand-error">
+        <p
+          id={`${id}-error`}
+          role="alert"
+          data-testid="validation-error"
+          className="text-sm text-brand-error"
+        >
           {error}
         </p>
       ) : null}

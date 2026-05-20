@@ -15,10 +15,15 @@ import {
   type EvaluationResult,
   type FormResponse,
 } from "@phoenixlabs/form-engine";
+import {
+  BP_CONFLICT_MESSAGE,
+  hasBloodPressureConflict,
+} from "@/lib/blood-pressure-validation";
 import { getSession, startSession, submitAnswer } from "@/lib/session-api";
 import { rebuildScreenHistory } from "@/lib/screen-history";
 import {
   SESSION_STORAGE_KEY,
+  draftStorageKey,
   type SessionStateResponse,
 } from "@/lib/session-types";
 
@@ -36,6 +41,8 @@ type WizardContextValue = {
   validationError: string | null;
   draftAnswer: unknown;
   setDraftAnswer: (value: unknown) => void;
+  clearValidationError: () => void;
+  reportValidationError: (message: string) => void;
   beginSession: () => Promise<void>;
   goToNextStep: () => Promise<void>;
   goBackToPreviousStep: () => void;
@@ -81,11 +88,35 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
   const [draftAnswer, setDraftAnswer] = useState<unknown>(undefined);
 
   const syncDraftFromActiveScreen = useCallback(
-    (screenId: ScreenId, saved: Partial<FormResponse>) => {
-      setDraftAnswer(saved[screenId as keyof FormResponse]);
+    (screenId: ScreenId, saved: Partial<FormResponse>, sid?: string | null) => {
+      const persisted = saved[screenId as keyof FormResponse];
+      if (persisted !== undefined) {
+        setDraftAnswer(persisted);
+        return;
+      }
+      if (sid) {
+        const raw = sessionStorage.getItem(draftStorageKey(sid, screenId));
+        if (raw) {
+          try {
+            setDraftAnswer(JSON.parse(raw) as unknown);
+            return;
+          } catch {
+            sessionStorage.removeItem(draftStorageKey(sid, screenId));
+          }
+        }
+      }
+      setDraftAnswer(undefined);
     },
     []
   );
+
+  const clearValidationError = useCallback(() => {
+    setValidationError(null);
+  }, []);
+
+  const reportValidationError = useCallback((message: string) => {
+    setValidationError(message);
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -110,9 +141,24 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (activeScreenId && activeScreenId !== ScreenId.FINAL_SCREEN) {
-      syncDraftFromActiveScreen(activeScreenId, answers);
+      syncDraftFromActiveScreen(activeScreenId, answers, sessionId);
     }
-  }, [activeScreenId, answers, syncDraftFromActiveScreen]);
+  }, [activeScreenId, answers, sessionId, syncDraftFromActiveScreen]);
+
+  useEffect(() => {
+    if (
+      !sessionId ||
+      !activeScreenId ||
+      activeScreenId === ScreenId.FINAL_SCREEN ||
+      draftAnswer === undefined
+    ) {
+      return;
+    }
+    sessionStorage.setItem(
+      draftStorageKey(sessionId, activeScreenId),
+      JSON.stringify(draftAnswer)
+    );
+  }, [sessionId, activeScreenId, draftAnswer]);
 
   const beginSession = useCallback(async () => {
     setIsSubmitting(true);
@@ -126,7 +172,11 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
         setEvaluationResult,
         setPhase,
       });
-      syncDraftFromActiveScreen(res.currentScreenId, res.savedAnswers);
+      syncDraftFromActiveScreen(
+        res.currentScreenId,
+        res.savedAnswers,
+        res.sessionId
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -141,8 +191,8 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
     setActiveScreenId(previous);
     setPhase(previous === ScreenId.FINAL_SCREEN ? "terminal" : "wizard");
     setValidationError(null);
-    syncDraftFromActiveScreen(previous, answers);
-  }, [screenHistory, activeScreenId, answers, syncDraftFromActiveScreen]);
+    syncDraftFromActiveScreen(previous, answers, sessionId);
+  }, [screenHistory, activeScreenId, answers, sessionId, syncDraftFromActiveScreen]);
 
   const goToNextStep = useCallback(async () => {
     if (!sessionId || !activeScreenId || activeScreenId === ScreenId.FINAL_SCREEN)
@@ -165,6 +215,17 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (activeScreenId === ScreenId.BLOOD_PRESSURE_CATEGORIES) {
+      const selected = Array.isArray(normalized)
+        ? (normalized as string[])
+        : [];
+      if (hasBloodPressureConflict(selected)) {
+        setValidationError(BP_CONFLICT_MESSAGE);
+        return;
+      }
+    }
+
+    const submittedScreenId = activeScreenId;
     setIsSubmitting(true);
     try {
       const res = await submitAnswer({
@@ -172,6 +233,9 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
         screenId: activeScreenId,
         answer: normalized,
       });
+      sessionStorage.removeItem(
+        draftStorageKey(sessionId, submittedScreenId)
+      );
       applyServerState(res, {
         setSessionId,
         setAnswers: setAnswers,
@@ -181,7 +245,11 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
         setPhase,
       });
       if (res.currentScreenId !== ScreenId.FINAL_SCREEN) {
-        syncDraftFromActiveScreen(res.currentScreenId, res.savedAnswers);
+        syncDraftFromActiveScreen(
+          res.currentScreenId,
+          res.savedAnswers,
+          res.sessionId
+        );
       }
     } catch {
       setValidationError("Unable to save your answer. Please try again.");
@@ -203,6 +271,8 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
       validationError,
       draftAnswer,
       setDraftAnswer,
+      clearValidationError,
+      reportValidationError,
       beginSession,
       goToNextStep,
       goBackToPreviousStep,
@@ -218,6 +288,8 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
       evaluationResult,
       validationError,
       draftAnswer,
+      clearValidationError,
+      reportValidationError,
       beginSession,
       goToNextStep,
       goBackToPreviousStep,

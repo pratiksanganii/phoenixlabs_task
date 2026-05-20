@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Add Vitest branch coverage for the form-engine evaluator and Playwright E2E flows (refresh recovery, happy path, terminal states).
+- Add Vitest branch coverage for the form-engine evaluator (100% branch paths).
 
 ## Completed
 
@@ -27,6 +27,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - **NestJS CORS:** Enabled `enableCors()` in `apps/api/src/main.ts` driven by `CORS_ORIGIN` (comma-separated origins supported).
 - **Shared UI Primitives:** Extended `@phoenixlabs/ui` with medical dark-mode `Card`, `Input` (prefix/suffix/errors), `RadioGroup`, `CheckboxGroup`, and `Button` variants with loading state.
 - **Next.js Client UI:** Single-route wizard at `apps/web` with `FormWizardContext` (localStorage hydration, client back stack, server-synced next), config-driven `QuestionRenderer`, terminal `EvaluationDashboard`, and direct `fetch` to `NEXT_PUBLIC_API_URL`.
+- **Playwright E2E:** Root `playwright.config.ts` with dual `webServer` (Nest `apps/api` :3001, Next `apps/web` :3000), `e2e/questionnaire.spec.ts` (happy path, mid-flow refresh, underage terminal, BP conflict), Chromium/Firefox/WebKit projects, and `npm run test:e2e`.
+- **E2E UI hooks:** Outcome `data-testid` values (`status-eligible`, `status-ineligible`, `status-requires-review`), `validation-error`, client-side blood-pressure conflict guard, and `sessionStorage` draft restore for in-progress numeric fields before submit.
 
 ## In Progress
 
@@ -35,7 +37,6 @@ Update this file whenever the current phase, active feature, or implementation s
 ## Next Up
 
 - **Unit Testing Coverage:** Add the Vitest 4 testing suite to force full 100% branch validation paths across every medical scenario defined in the specifications (form-engine).
-- **Playwright E2E:** Happy path, F5 hydration recovery, and terminal outcome screens.
 
 ## Open Questions
 

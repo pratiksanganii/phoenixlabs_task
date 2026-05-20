@@ -25,6 +25,12 @@ const STYLES = {
   },
 } as const;
 
+const OUTCOME_TEST_ID: Record<EvaluationResult["outcome"], string> = {
+  Eligible: "status-eligible",
+  Ineligible: "status-ineligible",
+  "Requires Clinical Review": "status-requires-review",
+};
+
 export function EvaluationDashboard({
   result,
 }: {
@@ -33,15 +39,17 @@ export function EvaluationDashboard({
   const style = STYLES[result.outcome];
   const Icon = style.icon;
   return (
-    <Card
-      className={`${style.border} ${style.bg}`}
-      data-testid="evaluation-dashboard"
-    >
+    <div data-testid="evaluation-dashboard">
+      <Card
+        className={`${style.border} ${style.bg}`}
+        data-testid={OUTCOME_TEST_ID[result.outcome]}
+      >
       <CardContent className="space-y-4 text-center">
         <Icon className="mx-auto h-12 w-12 text-slate-100" aria-hidden />
         <h2 className="text-2xl font-semibold text-slate-50">{style.heading}</h2>
         <p className="text-base text-slate-300">{result.reason}</p>
       </CardContent>
     </Card>
+    </div>
   );
 }
