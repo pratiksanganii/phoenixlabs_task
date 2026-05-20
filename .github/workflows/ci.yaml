@@ -28,7 +28,6 @@ jobs:
 
     # Injection parameters for runtime validation
     env:
-      PORT: "3001"
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/phoenix_test?schema=public"
 
     steps:
