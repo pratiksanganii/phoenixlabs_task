@@ -2,15 +2,18 @@
 @source "./";
 
 @theme {
-  /* Ensure highly legible, accessible color contrast ratios for healthcare targets */
-  --color-brand-primary: #0284c7;   /* Sky-600 */
-  --color-brand-dark: #0f172a;      /* Slate-900 */
-  --color-brand-error: #dc2626;     /* Red-600 */
-  
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-brand-primary: #38bdf8;
+  --color-brand-primary-hover: #0ea5e9;
+  --color-brand-surface: #0f172a;
+  --color-brand-surface-elevated: #1e293b;
+  --color-brand-border: #334155;
+  --color-brand-muted: #94a3b8;
+  --color-brand-error: #f87171;
+  --color-brand-success: #4ade80;
+  --color-brand-warning: #facc15;
+  --font-sans: "Inter", system-ui, sans-serif;
 }
 
-/* Ensure focus states are distinct and unmistakable for keyboard navigation */
 @layer base {
   *:focus-visible {
     @apply outline-3 outline-offset-2 outline-brand-primary;

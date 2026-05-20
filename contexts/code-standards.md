@@ -22,7 +22,7 @@
 
 ## Styling & Accessibility
 
-- Use CSS custom property design tokens defined in the shared `@phoenix/ui` styles file—no raw Tailwind color hexes or unmapped theme utilities.
+- Use CSS custom property design tokens defined in the shared `@phoenixlabs/ui` styles file—no raw Tailwind color hexes or unmapped theme utilities.
 - Maintain high-contrast visual elements targeting full WCAG 2.1 AA conformance standards.
 - Ensure all interactive form inputs map to semantic `<label htmlFor>` targets with distinctive focus-ring visibility indicators.
 - Append unambiguous, non-breaking `data-testid` properties to interactive elements to ensure end-to-end tests are fully text-agnostic.

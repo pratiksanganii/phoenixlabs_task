@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScreenId } from '@phoenix/form-engine';
+import { ScreenId } from '@phoenixlabs/form-engine';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
 import { SessionController } from './session.controller';

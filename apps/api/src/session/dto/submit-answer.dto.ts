@@ -1,4 +1,4 @@
-import { ScreenId } from '@phoenix/form-engine';
+import { ScreenId } from '@phoenixlabs/form-engine';
 import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 
 export class SubmitAnswerDto {

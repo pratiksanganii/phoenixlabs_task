@@ -6,8 +6,8 @@
 | :--- | :--- | :--- |
 | Framework | Next.js 15 (App Router) + TypeScript 5 | Patient-facing client frontend with optimized page loading and hydration. |
 | API Service | NestJS 11 + TypeScript 5 | High-performance, concurrent backend managing lifecycle session states and endpoints. |
-| Core Logic | Shared `@phoenix/form-engine` | Decoupled workspace package housing form JSON definitions and pure evaluation functions. |
-| UI Framework | Tailwind 4 + Shared `@phoenix/ui` | Semantic styling primitives conforming strictly to WCAG 2.1 AA accessibility guidelines. |
+| Core Logic | Shared `@phoenixlabs/form-engine` | Decoupled workspace package housing form JSON definitions and pure evaluation functions. |
+| UI Framework | Tailwind 4 + Shared `@phoenixlabs/ui` | Semantic styling primitives conforming strictly to WCAG 2.1 AA accessibility guidelines. |
 | Database | Prisma 6 + PostgreSQL 15 | Highly durable data storage processing atomic state changes and audit trails. |
 | Unit Testing | Vitest 4  | Pure business rule verification and NestJS module mocking providing 100% branch coverage. |
 | E2E Testing | Playwright Test 1.x  | Cross-browser workflow testing for happy-path, state refresh, and edge-case behaviors. |
@@ -46,7 +46,7 @@
 
 ## Invariants
 
-1. Request controllers never run or store calculations directly—evaluation rules reside exclusively within the pure `@phoenix/form-engine` package.
+1. Request controllers never run or store calculations directly—evaluation rules reside exclusively within the pure `@phoenixlabs/form-engine` package.
 2. Database actions processing incoming question answers must commit changes across the snapshot and history tables inside a unified atomic transaction block.
 3. Every input component must implement semantic HTML tags associated with accessible label definitions, keyboard navigability, and clear test tags.
 4. Interactive option screens that accept multiple selections (like Blood Pressure) default to the highest risk category checked to ensure strict patient safety.

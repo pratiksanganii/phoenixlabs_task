@@ -9,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@phoenix/form-engine': path.resolve(
+      '@phoenixlabs/form-engine': path.resolve(
         __dirname,
         '../../packages/form-engine/src/index.ts',
       ),

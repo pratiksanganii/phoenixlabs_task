@@ -4,7 +4,7 @@ import {
   evaluateEligibility,
   FormResponse,
   ScreenId,
-} from '@phoenix/form-engine';
+} from '@phoenixlabs/form-engine';
 import { Prisma } from '../../prisma/generated/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SessionStateResponse } from './dto/session-state-response.dto';

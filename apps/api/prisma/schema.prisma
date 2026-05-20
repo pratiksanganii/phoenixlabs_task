@@ -6,6 +6,7 @@ datasource db {
 generator client {
   provider = "prisma-client"
   output   = "./generated"
+  moduleFormat = "cjs"
 }
 
 /// The main session table storing the single absolute latest snapshot of a user's form state.

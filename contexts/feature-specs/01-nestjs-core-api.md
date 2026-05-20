@@ -27,7 +27,7 @@ flowchart TD
 
 
 
-Imports from `@phoenix/form-engine`: `ScreenId`, `FormResponse`, `EvaluationResult`, `determineCurrentActiveScreen`, `evaluateEligibility` only.
+Imports from `@phoenixlabs/form-engine`: `ScreenId`, `FormResponse`, `EvaluationResult`, `determineCurrentActiveScreen`, `evaluateEligibility` only.
 
 ---
 
@@ -109,10 +109,10 @@ Apply pipe on the `answer` endpoint: `@UsePipes(ValidateAnswerPipe)` or method-l
 
 Update [apps/api/package.json](apps/api/package.json):
 
-- `"@phoenix/form-engine": "*"` (workspace)
+- `"@phoenixlabs/form-engine": "*"` (workspace)
 - `class-validator`, `class-transformer` (ValidationPipe)
 - `vitest` (align with [architecture-overview.md](contexts/architecture-overview.md) and feature spec)
-- Change `"test": "vitest run"`; add [apps/api/vitest.config.ts](apps/api/vitest.config.ts) (`environment: 'node'`, `include: ['src/**/*.spec.ts']`, resolve `@phoenix/form-engine`)
+- Change `"test": "vitest run"`; add [apps/api/vitest.config.ts](apps/api/vitest.config.ts) (`environment: 'node'`, `include: ['src/**/*.spec.ts']`, resolve `@phoenixlabs/form-engine`)
 
 Keep existing Jest e2e config untouched unless it conflicts; session tests use Vitest only.
 

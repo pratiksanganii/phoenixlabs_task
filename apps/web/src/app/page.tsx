@@ -1,7 +1,5 @@
+import { FormWizardApp } from "@/components/form/FormWizardApp";
+
 export default function Home() {
-  return (
-    <div className="mt-10 center vw-100">
-      <>PhoenixLabs</>
-    </div>
-  );
+  return <FormWizardApp />;
 }
