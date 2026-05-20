@@ -41,7 +41,7 @@ jobs:
           cache: 'npm' # ⚡ Instantly caches node_modules based on package-lock.json
 
       - name: 📦 Install Dependencies
-        run: npm ci
+        run: npm install --include=optional
 
       - name: 🔍 Get Playwright Version for Cache Key
         id: playwright-version
