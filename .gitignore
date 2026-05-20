@@ -39,3 +39,8 @@ yarn-error.log*
 
 # Prisma
 apps/api/prisma/generated/
+
+# Playwright test artifacts
+test-results/
+playwright-report/
+blob-report/
