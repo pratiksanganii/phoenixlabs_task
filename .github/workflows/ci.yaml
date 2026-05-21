@@ -48,7 +48,7 @@ jobs:
 
       - name: 🧪 Run Core Logic Unit Tests (Form Engine)
         # ✅ NEW GATE: Validates JavaScript screening math/rules BEFORE hitting network endpoints
-        run: npm run test --workspace=form-engine
+        run: npm run test --workspace=@phoenixlabs/form-engine
 
       - name: 🗄️ Push Prisma Schema to Test DB
         run: npx prisma db push --schema=apps/api/prisma/schema.prisma
