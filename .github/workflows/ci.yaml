@@ -43,6 +43,19 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm install --include=optional
 
+      - name: 🏗️ Build Shared Packages
+        run: npm run build --workspace=@phoenixlabs/form-engine
+
+      - name: 🧪 Run Core Logic Unit Tests (Form Engine)
+        # ✅ NEW GATE: Validates JavaScript screening math/rules BEFORE hitting network endpoints
+        run: npm run test --workspace=form-engine
+
+      - name: 🗄️ Push Prisma Schema to Test DB
+        run: npx prisma db push --schema=apps/api/prisma/schema.prisma
+
+      - name: 🔬 Run Unit & Integration Tests (Vitest)
+        run: npm run test --workspace=api
+
       - name: 🔍 Get Playwright Version for Cache Key
         id: playwright-version
         run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
@@ -60,14 +73,6 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
-      - name: 🏗️ Build Shared Packages
-        run: npm run build --workspace=@phoenixlabs/form-engine
-
-      - name: 🗄️ Push Prisma Schema to Test DB
-        run: npx prisma db push --schema=apps/api/prisma/schema.prisma
-
-      - name: 🔬 Run Unit & Integration Tests (Vitest)
-        run: npm run test --workspace=api
 
       - name: 🚀 Run End-to-End Tests (Playwright)
         run: npx playwright test
