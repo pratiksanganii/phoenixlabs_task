@@ -14,16 +14,21 @@ export function CheckboxGroup({
   value,
   onChange,
   children,
+  legend,
   className,
 }: {
   value: string[];
   onChange: (value: string[]) => void;
   children: ReactNode;
+  legend: string;
   className?: string;
 }) {
   return (
     <CheckboxCtx.Provider value={{ value, onChange }}>
-      <div className={cn("grid gap-3", className)}>{children}</div>
+      <fieldset className={cn("grid gap-3", className)}>
+        <legend className="text-lg font-medium text-slate-100 mb-4">{legend}</legend>
+        {children}
+      </fieldset>
     </CheckboxCtx.Provider>
   );
 }

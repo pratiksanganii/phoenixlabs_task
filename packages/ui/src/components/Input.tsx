@@ -57,16 +57,19 @@ export function Input({
           </span>
         ) : null}
       </div>
-      {error ? (
-        <p
-          id={`${id}-error`}
-          role="alert"
-          data-testid="validation-error"
-          className="text-sm text-brand-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      <p
+        id={`${id}-error`}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        data-testid="validation-error"
+        className={cn(
+          "text-sm text-brand-error transition-all duration-150",
+          error ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
+        )}
+      >
+        {error || ""}
+      </p>
     </div>
   );
 }
