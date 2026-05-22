@@ -82,7 +82,7 @@ jobs:
 
       - name: 📥 Install Playwright Browsers (Skip if Cached)
         if: steps.playwright-cache-with-deps.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps webkit
+        run: npx playwright install --with-deps webkit chromium firefox
 
 
       - name: 🚀 Run End-to-End Tests (Playwright)
