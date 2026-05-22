@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   FORM_ENGINE_SCHEMA,
   ScreenId,
@@ -35,13 +36,28 @@ export function QuestionRenderer() {
     reportValidationError,
   } = useFormWizard();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!activeScreenId) return;
+    const timer = setTimeout(() => {
+      const input = containerRef.current?.querySelector("input");
+      if (input) {
+        input.focus();
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [activeScreenId]);
+
   if (!activeScreenId || activeScreenId === ScreenId.FINAL_SCREEN) return null;
 
   const config = FORM_ENGINE_SCHEMA[activeScreenId];
   const prompt = config.prompt ?? "";
 
+  let content = null;
+
   if (config.type === "number") {
-    return (
+    content = (
       <Input
         id={activeScreenId}
         label={prompt}
@@ -58,39 +74,36 @@ export function QuestionRenderer() {
         data-testid={`question-${activeScreenId}`}
       />
     );
-  }
-
-  if (config.type === "radio" && config.options) {
-    return (
+  } else if (config.type === "radio" && config.options) {
+    content = (
       <div className="space-y-4">
-        <p className="text-lg font-medium text-slate-100">{prompt}</p>
         <RadioGroup
           name={activeScreenId}
           value={typeof draftAnswer === "string" ? draftAnswer : undefined}
           onChange={setDraftAnswer}
+          legend={prompt}
         >
           {config.options.map((opt) => (
             <RadioOption key={opt} value={opt} label={opt} />
           ))}
         </RadioGroup>
-        {validationError ? (
-          <p
-            role="alert"
-            data-testid="validation-error"
-            className="text-sm text-brand-error"
-          >
-            {validationError}
-          </p>
-        ) : null}
+        <p
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          data-testid={validationError ? "validation-error" : undefined}
+          className={`text-sm text-brand-error transition-all duration-150 ${
+            validationError ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
+          }`}
+        >
+          {validationError || ""}
+        </p>
       </div>
     );
-  }
-
-  if (config.type === "checkbox" && config.options) {
+  } else if (config.type === "checkbox" && config.options) {
     const selected = Array.isArray(draftAnswer) ? (draftAnswer as string[]) : [];
-    return (
+    content = (
       <div className="space-y-4">
-        <p className="text-lg font-medium text-slate-100">{prompt}</p>
         <CheckboxGroup
           value={selected}
           onChange={(vals) => {
@@ -103,23 +116,28 @@ export function QuestionRenderer() {
               }
             }
           }}
+          legend={prompt}
         >
           {config.options.map((opt) => (
             <CheckboxOption key={opt} value={opt} label={opt} />
           ))}
         </CheckboxGroup>
-        {validationError ? (
-          <p
-            role="alert"
-            data-testid="validation-error"
-            className="text-sm text-brand-error"
-          >
-            {validationError}
-          </p>
-        ) : null}
+        <p
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          data-testid={validationError ? "validation-error" : undefined}
+          className={`text-sm text-brand-error transition-all duration-150 ${
+            validationError ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
+          }`}
+        >
+          {validationError || ""}
+        </p>
       </div>
     );
   }
 
-  return null;
+  if (!content) return null;
+
+  return <div ref={containerRef}>{content}</div>;
 }

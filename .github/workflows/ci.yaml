@@ -28,7 +28,6 @@ jobs:
 
     # Injection parameters for runtime validation
     env:
-      PORT: "3001"
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/phoenix_test?schema=public"
 
     steps:
@@ -39,17 +38,41 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm' # ⚡ Instantly caches node_modules based on package-lock.json
+
+      - name: 🦅 Cache Monorepo node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
       - name: 📦 Install Dependencies
-        run: npm ci
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm install --include=optional
+
+      - name: 🏗️ Build Shared Packages
+        run: npm run build --workspace=@phoenixlabs/form-engine
+
+      - name: 🧪 Run Core Logic Unit Tests (Form Engine)
+        # ✅ NEW GATE: Validates JavaScript screening math/rules BEFORE hitting network endpoints
+        run: npm run test --workspace=@phoenixlabs/form-engine
+
+      - name: 🗄️ Push Prisma Schema to Test DB
+        run: npx prisma db push --schema=apps/api/prisma/schema.prisma
+
+      - name: 🔬 Run Unit & Integration Tests (Vitest)
+        run: npm run test --workspace=api
 
       - name: 🔍 Get Playwright Version for Cache Key
         id: playwright-version
         run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
 
       - name: 🦅 Cache Playwright Browser Binaries
-        id: playwright-cache
+        id: playwright-cache-with-deps
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -58,17 +81,22 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: 📥 Install Playwright Browsers (Skip if Cached)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.playwright-cache-with-deps.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
-      - name: 🏗️ Build Shared Packages
-        run: npm run build --workspace=form-engine
+      # - name: 🦅 Cache Playwright Operating System Dependencies
+      #   id: playwright-os-deps
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-playwright-
 
-      - name: 🗄️ Push Prisma Schema to Test DB
-        run: npx prisma db push --schema=apps/api/prisma/schema.prisma
+      - name: 📥 Install Playwright Operating System Dependencies (Skip if Cached)
+        # if: steps.playwright-os-deps.outputs.cache-hit != 'true'
+        run: npx playwright install-deps
 
-      - name: 🔬 Run Unit & Integration Tests (Vitest)
-        run: npm run test --workspace=api
 
       - name: 🚀 Run End-to-End Tests (Playwright)
         run: npx playwright test

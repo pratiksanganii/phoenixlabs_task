@@ -91,30 +91,36 @@ function WizardFrame() {
           Question {step} of {total}
         </p>
         <h1 className="mb-6 text-2xl font-semibold text-slate-50">{title}</h1>
-        <Card>
-          <CardContent>
-            <QuestionRenderer />
-          </CardContent>
-          <CardFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={goBackToPreviousStep}
-              disabled={!canGoBack || isSubmitting}
-              data-testid="wizard-back"
-            >
-              Back
-            </Button>
-            <Button
-              type="button"
-              onClick={goToNextStep}
-              isLoading={isSubmitting}
-              data-testid="wizard-next"
-            >
-              Next
-            </Button>
-          </CardFooter>
-        </Card>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            goToNextStep();
+          }}
+        >
+          <Card>
+            <CardContent>
+              <QuestionRenderer />
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={goBackToPreviousStep}
+                disabled={!canGoBack || isSubmitting}
+                data-testid="wizard-back"
+              >
+                Back
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                data-testid="wizard-next"
+              >
+                Next
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
       </div>
     </main>
   );

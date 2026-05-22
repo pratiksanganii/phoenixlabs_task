@@ -14,16 +14,14 @@ function resolveApiDatabaseUrl(): string {
  */
 export default defineConfig({
   testDir: "e2e",
-  timeout: 60_000, // 1 minute
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
   reporter: [["list"]],
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    // Next.js dev (Turbopack) may not reach the window "load" event; avoid hanging on goto.
-    navigationTimeout: 90_000,
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
@@ -35,7 +33,7 @@ export default defineConfig({
       command: "npm run start:dev",
       cwd: "apps/api",
       url: "http://localhost:3001",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       timeout: 120_000, // 2 minutes
       env: {
         ...process.env,
@@ -48,7 +46,7 @@ export default defineConfig({
       command: "npm run dev",
       cwd: "apps/web",
       url: "http://localhost:3000",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       timeout: 120_000, // 2 minutes
       env: {
         ...process.env,

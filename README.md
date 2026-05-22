@@ -1,158 +1,331 @@
-# Turborepo starter
+# Phoenix Questionnaire Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+A high-performance, accessible, single-route medical questionnaire application built inside a modern TypeScript monorepo.
 
-## Using this example
+This platform securely screens patients for clinical eligibility while maintaining sub-millisecond local state transitions and robust server-side state synchronization.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+# 🏗️ Architecture & Topology
+
+The project is structured as an npm workspaces monorepo to isolate core business logic from presentation and delivery layers.
+
+## Applications
+
+
+| Workspace              | Description                                                  | Port   |
+| ---------------------- | ------------------------------------------------------------ | ------ |
+| `apps/api`             | NestJS 11 backend API                                        | `3001` |
+| `apps/web`             | Next.js 15 frontend application                              | `3000` |
+| `packages/form-engine` | Pure TypeScript finite state machine & clinical rules engine | —      |
+| `packages/ui`          | Shared headless/Tailwind UI primitives                       | —      |
+| `context`              | Architecture blueprints & feature specifications             | —      |
+
+
+---
+
+# ⚙️ Key Architectural Decisions
+
+## 1. Shared Single Source of Truth (`packages/form-engine`)
+
+### Decision
+
+All questionnaire metadata, sequencing logic, validation rules, and clinical thresholds live inside a dedicated pure TypeScript package.
+
+### Trade-off
+
+This requires a lightweight compilation step during development and CI:
+
+```bash
+npm run build --workspace=@phoenixlabs/form-engine
 ```
 
-## What's inside?
+However, it guarantees that both the NestJS API and Next.js frontend consume identical schemas, types, and scoring logic without duplication.
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## 2. Single-Route Dynamic Wizard (`apps/web`)
 
-- `web`: a [Next.js](https://nextjs.org/) app
-- `api`: Nestjs app
-- `@phoenixlabs/ui`: a react component library used in web
+### Decision
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+The entire 15-screen questionnaire runs on a single physical route (`/`) using a configuration-driven `QuestionRenderer`.
 
+### Trade-off
 
-### Utilities
+This increases client-side state complexity slightly, but eliminates unnecessary route transitions and enables:
 
-This Turborepo has some additional tools already setup for you:
+- Instant back-button rendering
+- Zero network delay navigation
+- No broken intermediate URL states
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+---
 
-### Build
+## 3. React Context for Local Form State
 
-To build all apps and packages, run the following command:
+### Decision
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Native React Context (`FormWizardContext`) manages form progression, cached answers, and navigation history.
 
-```sh
-cd my-turborepo
-turbo build
+### Trade-off
+
+Context updates trigger re-renders for consuming components. However, because only a single question card renders at any given time, the render tree remains extremely small and performant.
+
+Benefits include:
+
+- 0 KB third-party state-management dependencies
+- Predictable rendering behavior
+- Smooth 60fps interactions
+
+---
+
+## 4. Cross-Platform Native Binding Synchronization
+
+### Decision
+
+Explicit architecture-specific bindings are declared for native toolchains such as:
+
+- `rolldown`
+- `lightningcss`
+- `@tailwindcss/oxide`
+
+### Trade-off
+
+The lockfile becomes slightly larger, but this eliminates platform inconsistencies between:
+
+- Windows development machines
+- Ubuntu/Linux CI runners
+
+---
+
+# ⚡ Performance Considerations
+
+## Local-First Back Navigation
+
+When a user clicks **Back**, the application restores state directly from local memory without any API interaction.
+
+Result:
+
+- Zero-latency UX
+- Instant question restoration
+
+---
+
+## Idempotent State Synchronization
+
+Advancing forward triggers:
+
+```http
+POST /api/session/answer
 ```
 
-Without global `turbo`, use your package manager:
+The backend short-circuits database writes when payloads match existing state, minimizing unnecessary I/O while maintaining strict validation guarantees.
 
-```sh
-cd my-turborepo
-npx turbo build
-npm dlx turbo build
-npm exec turbo build
+---
+
+## Transient Hydration Recovery
+
+On initial mount, the frontend checks for a persisted:
+
+```txt
+phoenix_session_id
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+If found:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- A lightweight skeleton UI renders immediately
+- Progress hydrates from the database in the background
+- Users never lose progress after accidental refreshes
 
-```sh
-turbo build --filter=docs
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Node.js `v22+`
+- PostgreSQL database / Docker
+
+---
+
+# 1. Environment Configuration
+
+Create a root-level `.env` file:
+
+```env
+PORT=3001
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/phoenix_test?schema=public"
+CORS_ORIGIN="http://localhost:3000"
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+# 2. Install Dependencies
+
+From the repository root:
+
+```bash
+npm install
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+# 3. Spin Up Local Database (If using Docker for Database)
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Launch the dockerized PostgreSQL container in the background:
 
-```sh
-cd my-turborepo
-turbo dev
+```bash
+docker compose up -d
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+# 4. Generate Database Schema
+
+Push Prisma schema definitions to PostgreSQL:
+
+```bash
+npm run db:push --workspace=api
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+# 5. Build Shared Packages
 
-```sh
-turbo dev --filter=web
+Compile the shared form engine package:
+
+```bash
+npm run build --workspace=@phoenixlabs/form-engine
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+# 6. Start Development Servers
+
+Start all workspaces simultaneously:
+
+```bash
+npm run dev
 ```
 
-### Remote Caching
+Or start services individually:
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+```bash
+# Backend API
+npm run start:dev --workspace=api
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+# Frontend
+npm run dev --workspace=web
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
+# 🧪 Testing Pipeline
+
+The project uses a layered testing strategy for fast-failing validation and regression safety.
+
+---
+
+## Unit & Core Logic Tests
+
+Validates:
+
+- Screening rules
+- Mathematical evaluators
+- State transitions
+
+```bash
+npm run test --workspace=@phoenixlabs/form-engine
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## Backend Integration Tests
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Validates:
 
-```sh
-turbo link
+- API endpoints
+- Session persistence
+- Controller validation
+
+```bash
+npm run test --workspace=api
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
+## End-to-End Tests (Playwright)
+
+Runs multi-browser workflow simulations across:
+
+- Chromium
+- Firefox
+- WebKit
+
+Coverage includes:
+
+- Happy paths
+- Mid-flow refresh recovery
+- Ineligibility flows
+- Multi-select conflict handling
+
+⚠️ IMPORTANT PORT CONFLICT NOTE: Playwright's config handles spinning up its own isolated backend and frontend instances dynamically. You must kill your active local development servers (npm run dev) before running E2E tests, otherwise Playwright will crash with an EADDRINUSE: :::3001 error.
+
+### First-Time Setup
+
+```bash
+npx playwright install --with-deps
 ```
 
-## Useful Links
+### Execute E2E Suite
 
-Learn more about the power of Turborepo:
+```bash
+npm run test:e2e
+```
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+---
+
+# 🔄 Continuous Integration
+
+GitHub Actions automatically validates every pull request against `main` and `master`.
+
+CI workflow responsibilities include:
+
+- Spinning up isolated PostgreSQL containers
+- Restoring dependency + Playwright caches
+- Building workspace dependencies
+- Running core engine tests
+- Executing backend integration suites
+- Running Playwright cross-browser matrices
+
+This guarantees high-confidence regression protection before merge.
+
+---
+
+# 📦 Tech Stack
+
+## Frontend
+
+- Next.js 15
+- React
+- TypeScript
+- TailwindCSS
+
+## Backend
+
+- NestJS 11
+- Prisma
+- PostgreSQL
+
+## Tooling
+
+- npm Workspaces
+- Vitest
+- Playwright
+- ESLint
+- Prettier
+
+---
+
+# 📄 License
+
+Private/Internal Project

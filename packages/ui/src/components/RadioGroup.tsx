@@ -16,19 +16,22 @@ export function RadioGroup({
   value,
   onChange,
   children,
+  legend,
   className,
 }: {
   name: string;
   value: string | undefined;
   onChange: (value: string) => void;
   children: ReactNode;
+  legend: string;
   className?: string;
 }) {
   return (
     <RadioCtx.Provider value={{ name, value, onChange }}>
-      <div role="radiogroup" className={cn("grid gap-3", className)}>
+      <fieldset className={cn("grid gap-3", className)}>
+        <legend className="text-lg font-medium text-slate-100 mb-4">{legend}</legend>
         {children}
-      </div>
+      </fieldset>
     </RadioCtx.Provider>
   );
 }
