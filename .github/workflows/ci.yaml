@@ -73,6 +73,9 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
+      - name: 📥 Install Playwright Operating System Dependencies
+        run: npx playwright install-deps
+
 
       - name: 🚀 Run End-to-End Tests (Playwright)
         run: npx playwright test
