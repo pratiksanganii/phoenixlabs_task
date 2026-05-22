@@ -97,12 +97,16 @@ export interface EvaluationResult {
  */
 export interface SessionStateResponse {
   sessionId: string;
-  currentScreenId: ScreenId | "COMPLETED";
-  previousScreenId: ScreenId | null;
-  savedAnswers: FormResponse;
-  nextStep: {
-    type: "QUESTION" | "END_STATE";
-    screenId?: ScreenId;
-    evaluation?: EvaluationResult;
-  };
+  currentScreenId: ScreenId;
+  savedAnswers: Partial<FormResponse>;
+  evaluationResult: EvaluationResult | null;
+}
+
+/**
+ * Shared Type for submitting answers payload from client to API.
+ */
+export interface SubmitAnswerPayload {
+  sessionId: string;
+  screenId: ScreenId;
+  answer: unknown;
 }

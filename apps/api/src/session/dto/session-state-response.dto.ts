@@ -1,12 +1,1 @@
-import type {
-  EvaluationResult,
-  FormResponse,
-  ScreenId,
-} from '@phoenixlabs/form-engine';
-
-export interface SessionStateResponse {
-  sessionId: string;
-  currentScreenId: ScreenId;
-  savedAnswers: Partial<FormResponse>;
-  evaluationResult: EvaluationResult | null;
-}
+export type { SessionStateResponse } from '@phoenixlabs/form-engine';

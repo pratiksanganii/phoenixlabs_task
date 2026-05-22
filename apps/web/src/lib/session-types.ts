@@ -1,21 +1,9 @@
 import type {
-  EvaluationResult,
-  FormResponse,
-  ScreenId,
+  SessionStateResponse,
+  SubmitAnswerPayload,
 } from "@phoenixlabs/form-engine";
 
-export interface SessionStateResponse {
-  sessionId: string;
-  currentScreenId: ScreenId;
-  savedAnswers: Partial<FormResponse>;
-  evaluationResult: EvaluationResult | null;
-}
-
-export interface SubmitAnswerPayload {
-  sessionId: string;
-  screenId: ScreenId;
-  answer: unknown;
-}
+export type { SessionStateResponse, SubmitAnswerPayload };
 
 export const SESSION_STORAGE_KEY = "phoenix_session_id";
 
