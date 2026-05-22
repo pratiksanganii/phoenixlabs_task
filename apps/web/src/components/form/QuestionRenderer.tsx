@@ -91,7 +91,7 @@ export function QuestionRenderer() {
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
-          data-testid="validation-error"
+          data-testid={validationError ? "validation-error" : undefined}
           className={`text-sm text-brand-error transition-all duration-150 ${
             validationError ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
           }`}
@@ -126,7 +126,7 @@ export function QuestionRenderer() {
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
-          data-testid="validation-error"
+          data-testid={validationError ? "validation-error" : undefined}
           className={`text-sm text-brand-error transition-all duration-150 ${
             validationError ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
           }`}

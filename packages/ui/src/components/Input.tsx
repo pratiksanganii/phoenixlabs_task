@@ -62,7 +62,7 @@ export function Input({
         role="alert"
         aria-live="assertive"
         aria-atomic="true"
-        data-testid="validation-error"
+        data-testid={error ? "validation-error" : undefined}
         className={cn(
           "text-sm text-brand-error transition-all duration-150",
           error ? "opacity-100 mt-2" : "h-0 overflow-hidden opacity-0"
